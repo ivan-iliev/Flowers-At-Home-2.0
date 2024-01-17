@@ -24,6 +24,13 @@
 #define POWER_CTRL 4
 #define USER_BUTTON 35
 
+#define uS_TO_S_FACTOR 1000000 
+#define TIME_TO_SLEEP  120  
+#define THRESHOLD   1
+
+RTC_DATA_ATTR int bootCount = 0;
+touch_pad_t touchPin;
+
 #define soil_max 1638
 #define soil_min 3285
 
@@ -31,8 +38,6 @@
 
 
 int state;
-
-
 float luxRead;
 float advice;
 float soil;
@@ -41,12 +46,40 @@ float soil;
 BH1750 lightMeter(0x23);
 DHT dht(DHT_PIN, DHT_TYPE);
 
+void print_wakeup_reason(){
 
+  esp_sleep_wakeup_cause_t wakeup_reason;
 
+  wakeup_reason = esp_sleep_get_wakeup_cause();
 
-
-AsyncWebServer server(8080);
-
+  switch(wakeup_reason)
+  {
+    case ESP_SLEEP_WAKEUP_EXT0 : Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+    case ESP_SLEEP_WAKEUP_EXT1 : Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+    case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break;
+    case ESP_SLEEP_WAKEUP_TOUCHPAD : Serial.println("Wakeup caused by touchpad"); break;
+    case ESP_SLEEP_WAKEUP_ULP : Serial.println("Wakeup caused by ULP program"); break;
+    default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason); break;
+  }
+}
+void print_wakeup_touchpad(){
+  touchPin = esp_sleep_get_touchpad_wakeup_status();
+    switch(touchPin)
+    {
+      case 0  : Serial.println("Touch detected on GPIO 4"); break;
+      case 1  : Serial.println("Touch detected on GPIO 0"); break;
+      case 2  : Serial.println("Touch detected on GPIO 2"); break;
+      case 3  : Serial.println("Touch detected on GPIO 15"); break;
+      case 4  : Serial.println("Touch detected on GPIO 13"); break;
+      case 5  : Serial.println("Touch detected on GPIO 12"); break;
+      case 6  : Serial.println("Touch detected on GPIO 14"); break;
+      case 7  : Serial.println("Touch detected on GPIO 27"); break;
+      case 8  : Serial.println("Touch detected on GPIO 33"); break;
+      case 9  : Serial.println("Touch detected on GPIO 32"); break;
+      default : Serial.println("Wakeup not by touchpad"); break;
+    }
+  
+}
 String readTemp() {
 
   float t = dht.readTemperature();
@@ -60,7 +93,6 @@ String readTemp() {
     return String(t);
   }
 }
-
 String readHum() {
   float h = dht.readHumidity();
   if (isnan(h)) {
@@ -72,9 +104,6 @@ String readHum() {
     return String(h);
   }
 }
-
-
-
 String readLight() {
   float l = lightMeter.readLightLevel();
   if (isnan(l)) {
@@ -86,7 +115,6 @@ String readLight() {
     return String(l);
   }
 }
-
 String readSoil()
 {
   uint16_t soil = analogRead(SOIL_PIN);
@@ -99,8 +127,6 @@ String readSoil()
 
 
 }
-
-
 float readBattery()
 {
   int vref = 1100;
@@ -117,9 +143,8 @@ float readBattery()
   }
 
 }
-
-
 String readSalt()
+
 {
   uint8_t samples = 120;
   uint32_t humi = 0;
@@ -140,11 +165,15 @@ String readSalt()
   humi /= samples - 2;
   return String(humi);
 }
+void callback(){
+  //placeholder callback function
+}
 
 
 void setup() {
 
   Serial.begin(115200);
+  delay(1000);
   pinMode(USER_BUTTON,INPUT_PULLUP);
   dht.begin();
   lightMeter.begin();
@@ -152,12 +181,8 @@ void setup() {
   pinMode(POWER_CTRL, OUTPUT);
   digitalWrite(POWER_CTRL, 1);
   delay(1000);
-
+  esp_sleep_enable_touchpad_wakeup();
   
-
-  
-
-
   bool wireOk = Wire.begin(I2C_SDA, I2C_SCL);
   if (wireOk)
   {
@@ -192,8 +217,9 @@ void setup() {
   wm.startWebPortal();
  // wm.resetSettings();
 
-state = digitalRead(USER_BUTTON);
+  
 
+  state = digitalRead(USER_BUTTON);
   if(state==LOW){
      wm.resetSettings();
   }
@@ -203,11 +229,69 @@ state = digitalRead(USER_BUTTON);
     ESP.restart();
   }
 
+  float bat = readBattery();
+  Serial.println("Battery level");
+  Serial.println(bat);
+
+  Serial.print("**********************************");
+  Serial.print("Printing Data of ALl the Sensors");
+  Serial.println("**********************************");
+  Serial.println("");
+
+  luxRead = lightMeter.readLightLevel();
+  Serial.print("Lux - "); Serial.println(luxRead);
+
+  String soil = readSoil();
+  Serial.print("Soil Moisture - "); Serial.println(soil);
+
+  String salt = readSalt();
+
+  
+  Serial.print("Salt - "); Serial.println(salt);
+
+  float t = dht.readTemperature(); // Read temperature as Fahrenheit then dht.readTemperature(true)
+  Serial.print("Temperature - "); Serial.println(t);
+
+  float h = dht.readHumidity();
+  Serial.print("Humidity - "); Serial.println(h);
+
+  float batt = readBattery();
+  Serial.print("Battery - "); Serial.println(batt);
+
+
+
+  ++bootCount;
+  Serial.println("Boot number: " + String(bootCount));
+  Serial.println("SoilM0 - " + String(touchRead(T0)));
+  Serial.println("SoilM1 - " + String(touchRead(T1)));
+  Serial.println("SoilM2 - " + String(touchRead(T2)));
+  Serial.println("SoilM3 - " + String(touchRead(T3)));
+  Serial.println("SoilM4 - " + String(touchRead(T4)));
+  Serial.println("SoilM5 - " + String(touchRead(T5)));
+  Serial.println("SoilM6 - " + String(touchRead(T6)));
+  Serial.println("SoilM7 - " + String(touchRead(T7)));
+  Serial.println("SoilM8 - " + String(touchRead(T8)));
+  Serial.println("SoilM9 - " + String(touchRead(T9)));
+
+  print_wakeup_reason();
+  //print_wakeup_touchpad();
+
+
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+ 
+  //touchSleepWakeUpEnable(T2, THRESHOLD);
+
+  
+  Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
+  Serial.println("Going to sleep now");
+  delay(1000);
+  Serial.flush(); 
+  esp_deep_sleep_start();
+  Serial.println("This will never be printed");
+
 }
 
 void loop() {
-
  
-
 }
 
