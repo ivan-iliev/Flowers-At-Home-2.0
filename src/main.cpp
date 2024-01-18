@@ -9,6 +9,10 @@
 #include <SD.h>
 #include <SPI.h>
 #include <LittleFS.h>
+#include <stdio.h>
+#include <string.h>
+#include "esp_system.h"
+#include "esp_wifi.h"
 
 
 
@@ -26,13 +30,15 @@
 
 #define uS_TO_S_FACTOR 1000000 
 #define TIME_TO_SLEEP  120  
-#define THRESHOLD   1
+//#define THRESHOLD   1
 
 RTC_DATA_ATTR int bootCount = 0;
-touch_pad_t touchPin;
+//touch_pad_t touchPin;
 
 #define soil_max 1638
 #define soil_min 3285
+
+String MAC = WiFi.macAddress();
 
 #define DHT_TYPE DHT11
 
@@ -62,7 +68,7 @@ void print_wakeup_reason(){
     default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason); break;
   }
 }
-void print_wakeup_touchpad(){
+/*void print_wakeup_touchpad(){
   touchPin = esp_sleep_get_touchpad_wakeup_status();
     switch(touchPin)
     {
@@ -79,7 +85,7 @@ void print_wakeup_touchpad(){
       default : Serial.println("Wakeup not by touchpad"); break;
     }
   
-}
+}*/
 String readTemp() {
 
   float t = dht.readTemperature();
@@ -168,7 +174,15 @@ String readSalt()
 void callback(){
   //placeholder callback function
 }
-
+void getMacAddress(char* macAddress) {
+    uint8_t mac[6];
+    
+    
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+    
+    
+    sprintf(macAddress, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
 
 void setup() {
 
@@ -181,7 +195,7 @@ void setup() {
   pinMode(POWER_CTRL, OUTPUT);
   digitalWrite(POWER_CTRL, 1);
   delay(1000);
-  esp_sleep_enable_touchpad_wakeup();
+  //esp_sleep_enable_touchpad_wakeup();
   
   bool wireOk = Wire.begin(I2C_SDA, I2C_SCL);
   if (wireOk)
@@ -211,13 +225,16 @@ void setup() {
 
   bool res;
 
+  char macAddress[18];
+  char apString[30];
+  getMacAddress(macAddress);
 
+  strcpy(apString, macAddress);
+  strcat(apString, " - Botanica");
   WiFiManager wm;
-  res = wm.autoConnect("Flowers At Home", "password"); // password protected ap
+  res = wm.autoConnect(apString, "password");
   wm.startWebPortal();
- // wm.resetSettings();
-
-  
+  //wm.resetSettings();
 
   state = digitalRead(USER_BUTTON);
   if(state==LOW){
@@ -262,17 +279,6 @@ void setup() {
 
   ++bootCount;
   Serial.println("Boot number: " + String(bootCount));
-  Serial.println("SoilM0 - " + String(touchRead(T0)));
-  Serial.println("SoilM1 - " + String(touchRead(T1)));
-  Serial.println("SoilM2 - " + String(touchRead(T2)));
-  Serial.println("SoilM3 - " + String(touchRead(T3)));
-  Serial.println("SoilM4 - " + String(touchRead(T4)));
-  Serial.println("SoilM5 - " + String(touchRead(T5)));
-  Serial.println("SoilM6 - " + String(touchRead(T6)));
-  Serial.println("SoilM7 - " + String(touchRead(T7)));
-  Serial.println("SoilM8 - " + String(touchRead(T8)));
-  Serial.println("SoilM9 - " + String(touchRead(T9)));
-
   print_wakeup_reason();
   //print_wakeup_touchpad();
 
