@@ -1,6 +1,8 @@
 #include <WiFiManager.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncTCP.h>
+#include <DNSServer.h>
 #include <SPIFFS.h>
 #include <Arduino.h>
 #include <DHT.h>
@@ -32,6 +34,27 @@
 #define TIME_TO_SLEEP  120  
 //#define THRESHOLD   1
 
+DNSServer dnsServer;
+
+AsyncWebServer server(80);
+
+const char* PARAM_INPUT_1 = "ssid";
+const char* PARAM_INPUT_2 = "pass";
+const char* PARAM_INPUT_3 = "username";
+const char* PARAM_INPUT_4 = "userpass";
+
+
+String ssid;
+String pass;
+String username;
+String userpass;
+
+
+const char* ssidPath = "/ssid.conf";
+const char* passPath = "/pass.conf";
+const char* usernamePath = "/username.conf";
+const char* userpassPath = "/userpass.conf";
+
 RTC_DATA_ATTR int bootCount = 0;
 //touch_pad_t touchPin;
 
@@ -42,6 +65,8 @@ String MAC = WiFi.macAddress();
 
 #define DHT_TYPE DHT11
 
+unsigned long previousMillis = 0;
+const long interval = 10000; 
 
 int state;
 float luxRead;
@@ -184,6 +209,90 @@ void getMacAddress(char* macAddress) {
     sprintf(macAddress, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
+void initSPIFFS() {
+  if (!SPIFFS.begin(true)) {
+    Serial.println("An error has occurred while mounting SPIFFS");
+  }
+  Serial.println("SPIFFS mounted successfully");
+}
+
+String readFile(fs::FS &fs, const char * path){
+  Serial.printf("Reading file: %s\r\n", path);
+
+  File file = fs.open(path);
+  if(!file || file.isDirectory()){
+    Serial.println("- failed to open file for reading");
+    return String();
+  }
+  
+  String fileContent;
+  while(file.available()){
+    fileContent = file.readStringUntil('\n');
+    break;     
+  }
+  return fileContent;
+}
+
+void writeFile(fs::FS &fs, const char * path, const char * message){
+  Serial.printf("Writing file: %s\r\n", path);
+
+  File file = fs.open(path, FILE_WRITE);
+  if(!file){
+    Serial.println("- failed to open file for writing");
+    return;
+  }
+  if(file.print(message)){
+    Serial.println("- file written");
+  } else {
+    Serial.println("- write failed");
+  }
+}
+
+bool initWiFi() {
+  if(ssid=="" || pass==""){
+    Serial.println("Undefined SSID or IP address.");
+    return false;
+  }
+
+  WiFi.mode(WIFI_STA);
+
+  if (!WiFi.config(WiFi.localIP(), WiFi.gatewayIP(), WiFi.subnetMask())){
+    Serial.println("STA Failed to configure");
+    return false;
+  }
+  WiFi.begin(ssid.c_str(), pass.c_str());
+  Serial.println("Connecting to WiFi...");
+
+  unsigned long currentMillis = millis();
+  previousMillis = currentMillis;
+
+  while(WiFi.status() != WL_CONNECTED) {
+    currentMillis = millis();
+    if (currentMillis - previousMillis >= interval) {
+      Serial.println("Failed to connect.");
+      return false;
+    }
+  }
+
+  Serial.println(WiFi.localIP());
+  return true;
+}
+
+class CaptiveRequestHandler : public AsyncWebHandler {
+public:
+  CaptiveRequestHandler() {}
+  virtual ~CaptiveRequestHandler() {}
+
+  bool canHandle(AsyncWebServerRequest *request){
+    //request->addInterestingHeader("ANY");
+    return true;
+  }
+
+  void handleRequest(AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/wifimanager.html", "text/html"); 
+  }
+};
+
 void setup() {
 
   Serial.begin(115200);
@@ -191,6 +300,19 @@ void setup() {
   pinMode(USER_BUTTON,INPUT_PULLUP);
   dht.begin();
   lightMeter.begin();
+
+  initSPIFFS();
+  ssid = readFile(SPIFFS, ssidPath);
+  pass = readFile(SPIFFS, passPath);
+  username = readFile(SPIFFS, usernamePath);
+  userpass = readFile (SPIFFS, userpassPath);
+  Serial.println(ssid);
+  Serial.println(pass);
+  Serial.println(username);
+  Serial.println(userpass);
+
+
+ 
 
   pinMode(POWER_CTRL, OUTPUT);
   digitalWrite(POWER_CTRL, 1);
@@ -216,37 +338,23 @@ void setup() {
   }
 
 
-  if (!SPIFFS.begin()) {
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
 
-
-
-  bool res;
 
   char macAddress[18];
   char apString[30];
   getMacAddress(macAddress);
 
   strcpy(apString, macAddress);
-  strcat(apString, " - Botanica");
-  WiFiManager wm;
-  res = wm.autoConnect(apString, "password");
-  wm.startWebPortal();
-  //wm.resetSettings();
+  strcat(apString, " - Botanica");//apstring
 
-  state = digitalRead(USER_BUTTON);
-  if(state==LOW){
-     wm.resetSettings();
-  }
+  
 
-  if (!res) {
-    Serial.println("Failed to connect");
-    ESP.restart();
-  }
 
-  float bat = readBattery();
+if(initWiFi()) {
+    // izprashtame https zaqvka tuk
+
+
+ float bat = readBattery();
   Serial.println("Battery level");
   Serial.println(bat);
 
@@ -295,9 +403,93 @@ void setup() {
   esp_deep_sleep_start();
   Serial.println("This will never be printed");
 
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/plain", "VURZA SE:" + WiFi.localIP());
+  });
+  server.serveStatic("/", SPIFFS, "/");
+  server.begin();
+  }else{
+    Serial.println("Setting AP (Access Point)");
+  
+    WiFi.softAP(apString, NULL);
+
+    IPAddress IP = WiFi.softAPIP();
+    Serial.print("AP IP address: ");
+    Serial.println(IP); 
+
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(SPIFFS, "/wifimanager.html", "text/html");
+    });
+    
+    server.serveStatic("/", SPIFFS, "/");
+    
+    server.on("/", HTTP_POST, [](AsyncWebServerRequest *request) {
+      int params = request->params();
+      for(int i=0;i<params;i++){
+        AsyncWebParameter* p = request->getParam(i);
+        if(p->isPost()){
+          // HTTP POST ssid value
+          if (p->name() == PARAM_INPUT_1) {
+            ssid = p->value().c_str();
+            Serial.print("SSID set to: ");
+            Serial.println(ssid);
+            // Write file to save value
+            writeFile(SPIFFS, ssidPath, ssid.c_str());
+          }
+          // HTTP POST pass value
+          if (p->name() == PARAM_INPUT_2) {
+            pass = p->value().c_str();
+            Serial.print("Password set to: ");
+            Serial.println(pass);
+            // Write file to save value
+            writeFile(SPIFFS, passPath, pass.c_str());
+          }
+          // HTTP POST ip value
+          if (p->name() == PARAM_INPUT_3) {
+            username = p->value().c_str();
+            Serial.print("Username set to: ");
+            Serial.println(username);
+            // Write file to save value
+            writeFile(SPIFFS, usernamePath, username.c_str());
+          }
+          // HTTP POST gateway value
+          if (p->name() == PARAM_INPUT_4) {
+            userpass = p->value().c_str();
+            Serial.print("Userpass set to: ");
+            Serial.println(userpass);
+            // Write file to save value
+            writeFile(SPIFFS, userpassPath, userpass.c_str());
+          }
+          //Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+        }
+      }
+      request->send(200, "text/plain", "Done. ESP will restart, connect to your router and go to IP address: " + WiFi.localIP());
+      delay(3000);
+      ESP.restart();
+    });
+
+    dnsServer.start(53, "*", WiFi.softAPIP());
+    server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);
+    server.begin();
+  }
+
+
+
+
+
+  state = digitalRead(USER_BUTTON);
+  if(state==LOW){
+     //SPIFFS.remove("/ssid.conf");
+  //SPIFFS.remove("/pass.conf");
+  //SPIFFS.remove("/username.conf");
+  //SPIFFS.remove("/userpass.conf");
+  }
+
+  
+
 }
 
 void loop() {
- 
+  dnsServer.processNextRequest();
 }
 
