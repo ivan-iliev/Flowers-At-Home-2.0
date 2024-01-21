@@ -2,6 +2,8 @@ html {
     font-family: Arial, Helvetica, sans-serif; 
     display: inline-block; 
     text-align: center;
+    background: rgb(4,121,44);
+    background: linear-gradient(90deg, rgba(4,121,44,1) 0%, rgba(50,198,110,1) 51%, rgba(66,171,87,1) 100%);
   }
   
   h1 {
@@ -15,7 +17,7 @@ html {
   
   .topnav { 
     overflow: hidden; 
-    background-color: #0A1128;
+    background-color: #0a281a;
   }
   
   body {  
@@ -48,7 +50,7 @@ html {
   input[type=submit] {
     border: none;
     color: #FEFCFB;
-    background-color: #034078;
+    background-color: #037818;
     padding: 15px 15px;
     text-align: center;
     text-decoration: none;
@@ -61,10 +63,10 @@ html {
     }
   
   input[type=submit]:hover {
-    background-color: #1282A2;
+    background-color: #01470e;
   }
   
-  input[type=text], input[type=number], select {
+  input{
     width: 50%;
     padding: 12px 20px;
     margin: 18px;

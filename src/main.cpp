@@ -297,7 +297,7 @@ void setup() {
 
   Serial.begin(115200);
   delay(1000);
-  pinMode(USER_BUTTON,INPUT_PULLUP);
+  pinMode(USER_BUTTON,INPUT);
   dht.begin();
   lightMeter.begin();
 
@@ -479,10 +479,11 @@ if(initWiFi()) {
 
   state = digitalRead(USER_BUTTON);
   if(state==LOW){
-     //SPIFFS.remove("/ssid.conf");
-  //SPIFFS.remove("/pass.conf");
-  //SPIFFS.remove("/username.conf");
-  //SPIFFS.remove("/userpass.conf");
+    //SPIFFS.remove("/ssid.conf");
+    //SPIFFS.remove("/pass.conf");
+    //SPIFFS.remove("/username.conf");
+    //SPIFFS.remove("/userpass.conf");
+    Serial.println("natisnah natisnah natisnah");
   }
 
   
@@ -491,5 +492,9 @@ if(initWiFi()) {
 
 void loop() {
   dnsServer.processNextRequest();
+   state = digitalRead(USER_BUTTON);
+   if (state == HIGH) {
+    Serial.println("natisnah natisnah natisnah");
+  }
 }
 
