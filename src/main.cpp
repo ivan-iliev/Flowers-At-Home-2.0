@@ -352,8 +352,6 @@ void setup() {
 
 if(initWiFi()) {
     // izprashtame https zaqvka tuk
-
-
  float bat = readBattery();
   Serial.println("Battery level");
   Serial.println(bat);
