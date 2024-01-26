@@ -33,6 +33,7 @@
 #define uS_TO_S_FACTOR 1000000 
 #define TIME_TO_SLEEP  120  
 //#define THRESHOLD   1
+#define BUTTON_PIN_BITMASK 0x800000000 // 2^35 in hex
 
 DNSServer dnsServer;
 
@@ -390,6 +391,10 @@ if(initWiFi()) {
 
 
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  state = digitalRead(USER_BUTTON);
+
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_35,0);
+  
  
   //touchSleepWakeUpEnable(T2, THRESHOLD);
 
@@ -476,7 +481,7 @@ if(initWiFi()) {
 
 
   state = digitalRead(USER_BUTTON);
-  if(state==LOW){
+  if(state==HIGH){
     //SPIFFS.remove("/ssid.conf");
     //SPIFFS.remove("/pass.conf");
     //SPIFFS.remove("/username.conf");
@@ -491,7 +496,7 @@ if(initWiFi()) {
 void loop() {
   dnsServer.processNextRequest();
    state = digitalRead(USER_BUTTON);
-   if (state == HIGH) {
+   if (state == LOW) {
     Serial.println("natisnah natisnah natisnah");
   }
 }
