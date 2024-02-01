@@ -57,7 +57,7 @@ const char* PARAM_INPUT_2 = "pass";
 const char* PARAM_INPUT_3 = "username";
 const char* PARAM_INPUT_4 = "userpass";
 
-const char*  HTTPSServer = "https://www.botanica-wellness.com/report.php?mac=11:22:33:44:55:66&user=test@test.bg&pass=test";
+const char*  HTTPSServer = "https://www.botanica-wellness.com/report.php";
 
 const char* test_root_ca= \
   "-----BEGIN CERTIFICATE-----\n" \
@@ -471,6 +471,9 @@ if(initWiFi()) {
       Serial.print("[HTTPS] POST...\n");
       
       https.addHeader("Content-Type", "application/json");
+      https.addHeader("mac", MAC);
+      https.addHeader("user", "test@test.bg");
+      https.addHeader("pass", "test");
       int httpCode = https.POST(resJson);
       // httpCode will be negative on error
       if (httpCode > 0) {
