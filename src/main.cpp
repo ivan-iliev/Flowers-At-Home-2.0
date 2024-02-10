@@ -26,8 +26,6 @@
 
 
 
-
-
 #define I2C_SDA 25
 #define I2C_SCL 26
 #define DHT_PIN 16
@@ -38,15 +36,15 @@
 #define POWER_CTRL 4
 #define USER_BUTTON 35
 
-#define uS_TO_S_FACTOR 1000000 
-#define TIME_TO_SLEEP  120  
-//#define THRESHOLD   1
-#define BUTTON_PIN_BITMASK 0x800000000 // 2^35 in hex
+
+
+#define BUTTON_PIN_BITMASK 0x800000000
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP);
 String timeStamp;
 uint64_t milisec;
+
 
 DNSServer dnsServer;
 
@@ -56,6 +54,7 @@ const char* PARAM_INPUT_1 = "ssid";
 const char* PARAM_INPUT_2 = "pass";
 const char* PARAM_INPUT_3 = "username";
 const char* PARAM_INPUT_4 = "userpass";
+const char* PARAM_INPUT_5 = "interval";
 
 const char*  HTTPSServer = "https://www.botanica-wellness.com/report.php";
 
@@ -99,6 +98,10 @@ String ssid;
 String pass;
 String username;
 String userpass;
+String interval;
+
+#define uS_TO_S_FACTOR 1000000 
+#define TIME_TO_SLEEP interval.toInt() * 60  //time to sleep in seconds 
 const char* ntpServer = "ntp.rit.edu";
 
 
@@ -109,9 +112,9 @@ const char* ssidPath = "/ssid.conf";
 const char* passPath = "/pass.conf";
 const char* usernamePath = "/username.conf";
 const char* userpassPath = "/userpass.conf";
+const char* intervalPath = "/interval.conf";
 
 RTC_DATA_ATTR int bootCount = 0;
-//touch_pad_t touchPin;
 
 #define soil_max 1638
 #define soil_min 3285
@@ -121,7 +124,7 @@ String MAC = WiFi.macAddress();
 #define DHT_TYPE DHT11
 
 unsigned long previousMillis = 0;
-const long interval = 10000; 
+const long intervalA = 10000; 
 
 int state;
 float luxRead;
@@ -132,6 +135,29 @@ float soil;
 BH1750 lightMeter(0x23);
 DHT dht(DHT_PIN, DHT_TYPE);
 
+String ToString(uint64_t x)
+{
+     boolean flag = false; // For preventing string return like this 0000123, with a lot of zeros in front.
+     String str = "";      // Start with an empty string.
+     uint64_t y = 10000000000000000000;
+     int res;
+     if (x == 0)  // if x = 0 and this is not testet, then function return a empty string.
+     {
+           str = "0";
+           return str;  // or return "0";
+     }    
+     while (y > 0)
+     {                
+            res = (int)(x / y);
+            if (res > 0)  // Wait for res > 0, then start adding to string.
+                flag = true;
+            if (flag == true)
+                str = str + String(res);
+            x = x - (y * (uint64_t)res);  // Subtract res times * y from x
+            y = y / 10;                   // Reducer y with 10    
+     }
+     return str;
+}  
 void print_wakeup_reason(){
 
   esp_sleep_wakeup_cause_t wakeup_reason;
@@ -148,18 +174,6 @@ void print_wakeup_reason(){
     default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason); break;
   }
 }
-
-unsigned long Get_Epoch_Time() {
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return(0);
-  }
-  time(&now);
-  return now;
-}
-
 String readTemp() {
 
   float t = dht.readTemperature();
@@ -245,9 +259,6 @@ String readSalt()
   humi /= samples - 2;
   return String(humi);
 }
-void callback(){
-  //placeholder callback function
-}
 void getMacAddress(char* macAddress) {
     uint8_t mac[6];
     
@@ -257,14 +268,12 @@ void getMacAddress(char* macAddress) {
     
     sprintf(macAddress, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
-
 void initSPIFFS() {
   if (!SPIFFS.begin(true)) {
     Serial.println("An error has occurred while mounting SPIFFS");
   }
   Serial.println("SPIFFS mounted successfully");
 }
-
 String readFile(fs::FS &fs, const char * path){
   Serial.printf("Reading file: %s\r\n", path);
 
@@ -281,7 +290,6 @@ String readFile(fs::FS &fs, const char * path){
   }
   return fileContent;
 }
-
 void writeFile(fs::FS &fs, const char * path, const char * message){
   Serial.printf("Writing file: %s\r\n", path);
 
@@ -296,7 +304,6 @@ void writeFile(fs::FS &fs, const char * path, const char * message){
     Serial.println("- write failed");
   }
 }
-
 bool initWiFi() {
   if(ssid=="" || pass==""){
     Serial.println("Undefined SSID or IP address.");
@@ -317,7 +324,7 @@ bool initWiFi() {
 
   while(WiFi.status() != WL_CONNECTED) {
     currentMillis = millis();
-    if (currentMillis - previousMillis >= interval) {
+    if (currentMillis - previousMillis >= intervalA) {
       Serial.println("Failed to connect.");
       return false;
     }
@@ -326,14 +333,12 @@ bool initWiFi() {
   Serial.println(WiFi.localIP());
   return true;
 }
-
 class CaptiveRequestHandler : public AsyncWebHandler {
 public:
   CaptiveRequestHandler() {}
   virtual ~CaptiveRequestHandler() {}
 
   bool canHandle(AsyncWebServerRequest *request){
-    //request->addInterestingHeader("ANY");
     return true;
   }
 
@@ -343,7 +348,6 @@ public:
 };
 
 void setup() {
-
   Serial.begin(115200);
   delay(1000);
   pinMode(USER_BUTTON,INPUT);
@@ -356,18 +360,17 @@ void setup() {
   pass = readFile(SPIFFS, passPath);
   username = readFile(SPIFFS, usernamePath);
   userpass = readFile (SPIFFS, userpassPath);
+  interval = readFile(SPIFFS, intervalPath);
   Serial.println(ssid);
   Serial.println(pass);
   Serial.println(username);
   Serial.println(userpass);
+  Serial.println(interval);
 
-
- 
 
   pinMode(POWER_CTRL, OUTPUT);
   digitalWrite(POWER_CTRL, 1);
   delay(1000);
-  //esp_sleep_enable_touchpad_wakeup();
   
   bool wireOk = Wire.begin(I2C_SDA, I2C_SCL);
   if (wireOk)
@@ -433,10 +436,6 @@ if(initWiFi()) {
   Serial.print("Battery - "); Serial.println(batt);
 
 
-  //unsigned long epochTime; 
-  //uint64_t milisecTime;
-
-  //epochTime = Get_Epoch_Time();  
 
 
   timeClient.update();
@@ -446,6 +445,9 @@ if(initWiFi()) {
   
   milisec = timeStamp.toInt();
   milisec *= 1000;
+
+  uint64_t milisecInterval = interval.toInt() * 60000;
+  String milisecIntervalHeader = ToString(milisecInterval);
 
   Serial.print("TimeMil - "); Serial.println(milisec);
   String resJson;
@@ -472,16 +474,14 @@ if(initWiFi()) {
       
       https.addHeader("Content-Type", "application/json");
       https.addHeader("mac", MAC);
-      https.addHeader("user", "test@test.bg");
-      https.addHeader("pass", "test");
+      https.addHeader("user", username);
+      https.addHeader("pass", userpass);
+      https.addHeader("interval", milisecIntervalHeader);
       int httpCode = https.POST(resJson);
-      // httpCode will be negative on error
       if (httpCode > 0) {
-      // HTTP header has been send and Server response header has been handled
        Serial.printf("[HTTPS] POST... code: %d\n", httpCode);
 
         if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-          // print server response payload
           String payload = https.getString();
           Serial.println(payload);
         }
@@ -500,7 +500,6 @@ if(initWiFi()) {
   ++bootCount;
   Serial.println("Boot number: " + String(bootCount));
   print_wakeup_reason();
-  //print_wakeup_touchpad();
 
 
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
@@ -509,7 +508,6 @@ if(initWiFi()) {
   esp_sleep_enable_ext0_wakeup(GPIO_NUM_35,0);
   
  
-  //touchSleepWakeUpEnable(T2, THRESHOLD);
 
   
   Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
@@ -544,42 +542,49 @@ if(initWiFi()) {
       for(int i=0;i<params;i++){
         AsyncWebParameter* p = request->getParam(i);
         if(p->isPost()){
-          // HTTP POST ssid value
+     
           if (p->name() == PARAM_INPUT_1) {
             ssid = p->value().c_str();
             Serial.print("SSID set to: ");
             Serial.println(ssid);
-            // Write file to save value
+        
             writeFile(SPIFFS, ssidPath, ssid.c_str());
           }
-          // HTTP POST pass value
+       
           if (p->name() == PARAM_INPUT_2) {
             pass = p->value().c_str();
             Serial.print("Password set to: ");
             Serial.println(pass);
-            // Write file to save value
+        
             writeFile(SPIFFS, passPath, pass.c_str());
           }
-          // HTTP POST ip value
+         
           if (p->name() == PARAM_INPUT_3) {
             username = p->value().c_str();
             Serial.print("Username set to: ");
             Serial.println(username);
-            // Write file to save value
+      
             writeFile(SPIFFS, usernamePath, username.c_str());
           }
-          // HTTP POST gateway value
+         
           if (p->name() == PARAM_INPUT_4) {
             userpass = p->value().c_str();
             Serial.print("Userpass set to: ");
             Serial.println(userpass);
-            // Write file to save value
+    
             writeFile(SPIFFS, userpassPath, userpass.c_str());
           }
-          //Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+
+          if (p->name() == PARAM_INPUT_5) {
+            interval = p->value().c_str();
+            Serial.print("interval set to: ");
+            Serial.println(interval);
+    
+            writeFile(SPIFFS, intervalPath, interval.c_str());
+          }
         }
       }
-      request->send(200, "text/plain", "Done. ESP will restart, connect to your router and go to IP address: " + WiFi.localIP());
+      request->send(200, "text/plain", "Done. The device will restart, open your app. If u have entered a wrong wifi SSID or PASSWORD the device will remain in AP mode." + WiFi.localIP());
       delay(3000);
       ESP.restart();
     });
@@ -593,14 +598,6 @@ if(initWiFi()) {
 
 
   state = digitalRead(USER_BUTTON);
-  if(state==HIGH){
-    //SPIFFS.remove("/ssid.conf");
-    //SPIFFS.remove("/pass.conf");
-    //SPIFFS.remove("/username.conf");
-    //SPIFFS.remove("/userpass.conf");
-    Serial.println("natisnah natisnah natisnah");
-  }
-
   
 
 }
@@ -608,9 +605,6 @@ if(initWiFi()) {
 void loop() {
   dnsServer.processNextRequest();
    state = digitalRead(USER_BUTTON);
-   if (state == LOW) {
-    Serial.println("natisnah natisnah natisnah");
-  }
-  
+
 }
 
