@@ -45,6 +45,8 @@ NTPClient timeClient(ntpUDP);
 String timeStamp;
 uint64_t milisec;
 
+const char * headerKeys[] = {"x-rc"};
+const size_t numberOfHeaders = 1;
 
 DNSServer dnsServer;
 
@@ -55,8 +57,10 @@ const char* PARAM_INPUT_2 = "pass";
 const char* PARAM_INPUT_3 = "username";
 const char* PARAM_INPUT_4 = "userpass";
 const char* PARAM_INPUT_5 = "interval";
+const char* PARAM_INPUT_6 = "name";
 
 const char*  HTTPSServer = "https://www.botanica-wellness.com/report.php";
+const char*  HTTPSServerDeviceAdd = "https://www.botanica-wellness.com/appserver.php";
 
 const char* test_root_ca= \
   "-----BEGIN CERTIFICATE-----\n" \
@@ -99,9 +103,10 @@ String pass;
 String username;
 String userpass;
 String interval;
+String name;
 
 #define uS_TO_S_FACTOR 1000000 
-#define TIME_TO_SLEEP interval.toInt() * 60  //time to sleep in seconds 
+  //time to sleep in seconds 
 const char* ntpServer = "ntp.rit.edu";
 
 
@@ -113,6 +118,7 @@ const char* passPath = "/pass.conf";
 const char* usernamePath = "/username.conf";
 const char* userpassPath = "/userpass.conf";
 const char* intervalPath = "/interval.conf";
+const char* namePath = "/name.conf";
 
 RTC_DATA_ATTR int bootCount = 0;
 
@@ -230,11 +236,16 @@ float readBattery()
   float battery_voltage = ((float)volt / 4095.0) * 2.0 * 3.3 * (vref) / 1000;
 
   battery_voltage = battery_voltage * 100;
+
+  if(map(battery_voltage, 416, 290, 100, 0) <= 0){
+    return 0;
+  }
+  
   if (map(battery_voltage, 416, 290, 100, 0) >= 100) {
     return 100;
-  } else {
-    return map(battery_voltage, 416, 290, 100, 0);
   }
+
+  return map(battery_voltage, 416, 290, 0, 100);
 
 }
 String readSalt()
@@ -354,13 +365,16 @@ void setup() {
   dht.begin();
   lightMeter.begin();
   
-
+  readBattery();
   initSPIFFS();
   ssid = readFile(SPIFFS, ssidPath);
   pass = readFile(SPIFFS, passPath);
   username = readFile(SPIFFS, usernamePath);
   userpass = readFile (SPIFFS, userpassPath);
   interval = readFile(SPIFFS, intervalPath);
+  int TIME_TO_SLEEP = interval.toInt() * 60; // Fix: Added semicolon and fixed syntax error
+  Serial.println("INTERVAL" + String(TIME_TO_SLEEP)); // Fix: Converted TIME_TO_SLEEP to String
+  name = readFile(SPIFFS, namePath);
   Serial.println(ssid);
   Serial.println(pass);
   Serial.println(username);
@@ -372,15 +386,8 @@ void setup() {
   digitalWrite(POWER_CTRL, 1);
   delay(1000);
   
-  bool wireOk = Wire.begin(I2C_SDA, I2C_SCL);
-  if (wireOk)
-  {
-    Serial.println(F("Wire ok"));
-  }
-  else
-  {
-    Serial.println(F("Wire NOK"));
-  }
+  Wire.begin(I2C_SDA, I2C_SCL);
+ 
   if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE))
   {
     Serial.println(F("BH1750 Advanced begin"));
@@ -404,7 +411,6 @@ void setup() {
 
 
 if(initWiFi()) {
-  
   timeClient.begin();
   //configTime(0, 0, ntpServer);
   float bat = readBattery();
@@ -467,11 +473,49 @@ if(initWiFi()) {
     //create an HTTPClient instance
     HTTPClient https;
 
-    //Initializing an HTTPS communication using the secure client
-    Serial.print("[HTTPS] begin...\n");
-    if (https.begin(*client, HTTPSServer)) {  // HTTPS
+    
+
+    if (https.begin(*client, HTTPSServerDeviceAdd)) {
       Serial.print("[HTTPS] POST...\n");
-      
+      https.addHeader("Content-Type", "application/json");
+      https.addHeader("api", "device_add");
+      https.addHeader("mac", MAC);
+      https.addHeader("name", name);
+      https.addHeader("user", username);
+      https.addHeader("pass", userpass);
+      https.addHeader("interval", milisecIntervalHeader);
+      int httpCode = https.POST("");
+      if (httpCode > 0) {
+        for(int i = 0; i< https.headers(); i++){
+          Serial.println(https.header(i));
+        }
+        String headerRes= https.header("x-rc");
+        Serial.println(headerRes);   
+        if(httpCode == 500){
+         https.end();
+         Serial.println("Device already added");
+        }   
+        Serial.printf("[HTTPS] POST dev ... code: %d\n", httpCode);
+
+        if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
+           for(int i = 0; i< https.headers(); i++){
+            Serial.println(https.header(i));
+          }
+          String headerRes= https.header("x-rc");
+          Serial.println(headerRes);
+           if(headerRes != "600"){
+         https.end();
+         Serial.println("Device already added");
+        }       
+        }
+      }else {
+        Serial.printf("[HTTPS]send data POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
+      }
+      https.end();
+    }
+
+    if (https.begin(*client, HTTPSServer)) {
+      Serial.print("[HTTPS] POST...\n");
       https.addHeader("Content-Type", "application/json");
       https.addHeader("mac", MAC);
       https.addHeader("user", username);
@@ -479,22 +523,28 @@ if(initWiFi()) {
       https.addHeader("interval", milisecIntervalHeader);
       int httpCode = https.POST(resJson);
       if (httpCode > 0) {
-       Serial.printf("[HTTPS] POST... code: %d\n", httpCode);
+        for(int i = 0; i< https.headers(); i++){
+          Serial.println(https.header(i));
+        }
+        String headerRes= https.header("x-rc");
+        String payload = https.getString();
+        Serial.println("gledai tuk tuktuktuk post data: " + payload);
+        Serial.println(headerRes);      
+        Serial.printf("[HTTPS] POST data ... code: %d\n", httpCode);
 
         if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
           String payload = https.getString();
-          Serial.println(payload);
+          Serial.println("gledai tuk tuktuktuk: " + payload);
         }
-      }
-      else {
-        Serial.printf("[HTTPS] POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
+      }else {
+        Serial.printf("[HTTPS]send data POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
       }
       https.end();
     }
-  } else {
-    Serial.printf("[HTTPS] Unable to connect\n");
-  }
 
+  } else {
+    Serial.printf("[HTTPS]Add device Unable to connect\n");
+  }
 
 
   ++bootCount;
@@ -505,10 +555,7 @@ if(initWiFi()) {
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
   state = digitalRead(USER_BUTTON);
 
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_35,0);
-  
- 
-
+  //esp_sleep_enable_ext0_wakeup(GPIO_NUM_35,0);
   
   Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
   Serial.println("Going to sleep now");
@@ -582,6 +629,13 @@ if(initWiFi()) {
     
             writeFile(SPIFFS, intervalPath, interval.c_str());
           }
+          if (p->name() == PARAM_INPUT_6) {
+            name = p->value().c_str();
+            Serial.print("name set to: ");
+            Serial.println(name);
+    
+            writeFile(SPIFFS, namePath, name.c_str());
+          }
         }
       }
       request->send(200, "text/plain", "Done. The device will restart, open your app. If u have entered a wrong wifi SSID or PASSWORD the device will remain in AP mode." + WiFi.localIP());
@@ -593,18 +647,11 @@ if(initWiFi()) {
     server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);
     server.begin();
   }
-
-
-
-
-  state = digitalRead(USER_BUTTON);
-  
-
 }
 
 void loop() {
   dnsServer.processNextRequest();
-   state = digitalRead(USER_BUTTON);
+  state = digitalRead(USER_BUTTON);
 
 }
 
