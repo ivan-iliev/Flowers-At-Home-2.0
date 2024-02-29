@@ -23,6 +23,7 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "time.h"
+#include <math.h>
 
 
 
@@ -422,7 +423,8 @@ if(initWiFi()) {
   Serial.println("");
 
   luxRead = lightMeter.readLightLevel();
-  Serial.print("Lux - "); Serial.println(luxRead);
+  int luxReadRound = round(luxRead);
+  Serial.print("Lux - "); Serial.println(luxReadRound);
 
   String soil = readSoil();
   Serial.print("Soil Moisture - "); Serial.println(soil);
@@ -433,7 +435,7 @@ if(initWiFi()) {
   Serial.print("Salt - "); Serial.println(salt);
 
   float t = dht.readTemperature(); // Read temperature as Fahrenheit then dht.readTemperature(true)
-  Serial.print("Temperature - "); Serial.println(t);
+  Serial.print("Temperature - "); Serial.println(round(t));
 
   float h = dht.readHumidity();
   Serial.print("Humidity - "); Serial.println(h);
@@ -459,10 +461,10 @@ if(initWiFi()) {
   String resJson;
   postJson["battery"] = bat;
   postJson["humidity"] = h;
-  postJson["light"] = luxRead;
+  postJson["light"] = luxReadRound;
   postJson["salt"] = salt;
   postJson["soil"] = soil;
-  postJson["temperature"] = t;
+  postJson["temperature"] = round(t);
   postJson["timestamp"] = milisec;
   serializeJson(postJson, resJson);
 
@@ -504,9 +506,9 @@ if(initWiFi()) {
           String headerRes= https.header("x-rc");
           Serial.println(headerRes);
            if(headerRes != "600"){
-         https.end();
-         Serial.println("Device already added");
-        }       
+            https.end();
+            Serial.println("Device already added");
+          }       
         }
       }else {
         Serial.printf("[HTTPS]send data POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
