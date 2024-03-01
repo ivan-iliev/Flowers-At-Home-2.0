@@ -42,6 +42,8 @@ The Internet of Things (IoT) has recently been considered the state-of-the-art i
 
 You can [download](https://github.com/amitmerchant1990/electron-markdownify/releases/tag/v1.2.0) the latest installable version of Botanica-Wellnes for Android.
 
+Or set up the project on your [own](https://github.com/ivan-iliev/Flowers-At-Home-2.0/blob/main/botanica-mobile-android-client/ANDROID%20CLIENT%20GUIDE.md)
+
 ## Botanica Cloud IoT Server
 
 The Botanica Cloud IoT Server design is an independent software module that is not affected by the types, number and accuracy of hardware sensors used in the intelligent monitoring system. The developed software collects and analyzes all the values and gives a reasonable estimate of the actual treatment of various plant disease patterns by taking into account the sensor data and accuracy information. In addition, the software is flexible for use with different plants in monitored fields and is designed to be independent of a specific disease pattern. The software module is planned to consist of two components: a system core component and an artificial intelligence (AI) component. The core of the system takes care of collecting all the sensor data, and the AI component processes and analyzes the sensor readings and sends alarms if necessary to protect the user's crops. Botanica Cloud IoT Server supports multiple users and multiple sensors per user. At the moment there is no limitation.
@@ -53,6 +55,8 @@ You can see the server system requierments [here](https://github.com/ivan-iliev/
 ## Device Firmware
 
 The software design and implementation of firmware for a hardware plant sensor built as part of the integrated monitoring system for plant disease monitor and forecasting. All hardware sensors from multiple vendors have to be generic enough and to support: Soil fertility detection, Soil moisture detection, Light intensity detection, Ambient air temperature, Ambient air humidity, Low power working mode, Ultra Low power sleep, Long life battery cycle support. The plant sensor senses these quantities at a programmable period and sends the sensors’ readings as JSON data to the Botanica Cloud IoT Server.
+
+See how to set up a device by yourself [here](https://github.com/ivan-iliev/Flowers-At-Home-2.0/blob/main/botanica-sensors-firmware/FIRMWARE%20INSTALL.md)
 
 ### Current releases of botanica firmware for hardware sensors;
 * [LILIGO Model T-Higrow](https://www.lilygo.cc/en-bg/products/t-higrow)
