@@ -46,6 +46,9 @@ You can [download](https://github.com/amitmerchant1990/electron-markdownify/rele
 
 The Botanica Cloud IoT Server design is an independent software module that is not affected by the types, number and accuracy of hardware sensors used in the intelligent monitoring system. The developed software collects and analyzes all the values and gives a reasonable estimate of the actual treatment of various plant disease patterns by taking into account the sensor data and accuracy information. In addition, the software is flexible for use with different plants in monitored fields and is designed to be independent of a specific disease pattern. The software module is planned to consist of two components: a system core component and an artificial intelligence (AI) component. The core of the system takes care of collecting all the sensor data, and the AI component processes and analyzes the sensor readings and sends alarms if necessary to protect the user's crops. Botanica Cloud IoT Server supports multiple users and multiple sensors per user. At the moment there is no limitation.
 
+You can see the server system requierments [here](https://github.com/ivan-iliev/Flowers-At-Home-2.0/blob/main/botanica-core-server/SERVER.md).
+
+
 
 ## Device Firmware
 
