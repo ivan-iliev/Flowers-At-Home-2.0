@@ -1,92 +1,78 @@
+### Setup Information
 
-<h1 align="center">
-  <br>
- <img src="https://www.botanica-wellness.com/pics/logo/logo_svg.svg" alt="Botanica" width="200">
-  <br>
-    Botanica Wellness (Flowers At Home v2)
-  <br>
-</h1>
+These instructions will help you to set up your development environment, get the source code of the Botanica Wellness for Android app and build it by yourself.
 
-<h4 align="center">Open-Source IoT based smart plant monitoring system</h4>
+Sections 1) and 2) are common for any environment. The rest of the sections describe how to set up a project in different tool environments. Nowadays we recommend to use Android Studio (section 2), but you can also build the app from the command line (section 3).
+
+If you have any problem, remove the 'android' folder, start again from 1) and work your way down. If something still does not work as described here, please open a new issue describing exactly what you did, what happened, and what should have happened.
 
 
-## Key Features
+### 0. Common software dependencies.
 
-* IoT-based monitoring system for epidemic disease control: a key precision agriculture application for domestic and commercial use
-  
-* Hardware sensors generic enough from multiple vendors to be used with multiple plant diseases. All of them supporting ultra-low power modes and have long life battery cycles.
+There are some tools needed, no matter what is your specific IDE or build tool of preference.
 
-  
-* Reduces the number of chemical fungicides applications and promotes agriculture products with no (or minimal) chemicals residues and high-quality crops.
+[git][1] is used to access to the different versions of the Botanica Wellnes's source code. Download and install the version appropriate for your operating system from [here][2]. Add the full path to the 'bin/' directory from your git installation into the PATH variable of your environment so that it can be used from any location.
 
-  
-* Realize an expert system that emulates the decision-making ability of a human expert
+The [Android SDK][3] is necessary to build the app. There are different options to install it in your system, depending of the IDE you decide to use. Check Google documentation about [installation][4] for more details on these options. After installing it, add the full path to the directories 'tools/' and 'platform-tools/' from your Android SDK installation into the PATH variable of your environment.
 
-## Introduction
+Open a terminal and type 'android' to start the Android SDK Manager. To build Botanica Wellnes for Android app you will need to install at least the next SDK packages:
 
-Precision Agriculture (PA) has recently become the main trend in global agriculture. PA aims at optimizing production efficiency and uniformity across the field, optimizing the quality of the crops, minimizing the environmental impact, and minimizing the risk both from income and environmental points of view. One of the main applications of PA that is based on environmental auditing is epidemic disease control. Epidemic diseases have severe impacts on the crop production. The key player in epidemic diseases is the climate changes that occur unexpectedly in time and space, which make their impact more severe.
+* Android SDK Tools and Android SDK Platform-tools (already installed); upgrade to their last versions is usually a good idea.
+* No longer need to specify a version for the build tools, Gradle plugin uses the minimum required version by default.
+* Android 12.0 (API 31), SDK Platform; needed to build the Botanica Wellnes app.
 
-The Internet of Things (IoT) has recently been considered the state-of-the-art in implementing distributed monitoring and control systems in various application areas. Our IoT-based monitoring system aims to use Wireless Sensor Network (WSN) technology and is accessible through the Internet for precision agriculture applications such as epidemic disease control. Our IoT-based plant disease management system aims to achieve sustainable agricultural development. This system is generic enough to be used with multiple plant diseases where the software architecture can handle different plant disease models. In addition, the sensors and developed expert system software are flexible to be used with different plants in the monitored fields or other precision agriculture applications. While our platform is based on a standard wireless communication layer, it involves a careful system design, since the platform requirements are very strict.
+Install any other package you consider interesting, such as emulators.
 
-### The main components of the system are: 
-* Botanica Cloud IoT Server
-* Botanica firmware for hardware sensors
-* Botanica application for:  
-  * Android mobile devices
-  * iOS mobile devices (under development)
-  * Web application (under development)
+For other software dependencies check the details in the section corresponding to your preferred IDE or build system.
 
 
+### 1. Fork and download the Flowers-At-Home-2.0/botanica-mobile-android-client repository.
 
-## Download
+You will need [git][1] to access to the different versions of the Botanica Wellnes's source code. The source code is hosted in Github and may be read by anybody without needing a Github account. You will need a Github account if you want to contribute to the development of the app with your own code.
 
-You can [download](https://github.com/amitmerchant1990/electron-markdownify/releases/tag/v1.2.0) the latest installable version of Botanica-Wellnes for Android.
+Next steps will assume you have a Github account and that you will get the code from your own fork. 
 
-## Botanica Cloud IoT Server
+* In a web browser, go to [the repo link](https://github.com/ivan-iliev/Flowers-At-Home-2.0/), and click the 'Fork' button near the top right corner.
+* Open a terminal and go on with the next steps in it.
+* Clone your forked repository: ```git clone https://github.com/YOURGITHUBNAME/Flowers-At-Home-2.0.git```.
+* Move to the project folder with ```cd Flowers-At-Home-2.0```.
+* Fetch and apply any changes from your remote branch 'master': ```git fetch``` + ```git rebase```
+* Make official Botanica Wellness repo known as upstream: ```git remote add upstream https://github.com/Flowers-At-Home-2.0/android.git```
+* Make sure to get and apply the latest changes from official android/master branch: ```git fetch upstream``` + ```git rebase upstream/master```
 
-The Botanica Cloud IoT Server design is an independent software module that is not affected by the types, number and accuracy of hardware sensors used in the intelligent monitoring system. The developed software collects and analyzes all the values and gives a reasonable estimate of the actual treatment of various plant disease patterns by taking into account the sensor data and accuracy information. In addition, the software is flexible for use with different plants in monitored fields and is designed to be independent of a specific disease pattern. The software module is planned to consist of two components: a system core component and an artificial intelligence (AI) component. The core of the system takes care of collecting all the sensor data, and the AI component processes and analyzes the sensor readings and sends alarms if necessary to protect the user's crops. Botanica Cloud IoT Server supports multiple users and multiple sensors per user. At the moment there is no limitation.
-
-You can see the server system requierments [here](https://github.com/ivan-iliev/Flowers-At-Home-2.0/blob/main/botanica-core-server/SERVER.md).
-
-
-
-## Device Firmware
-
-The software design and implementation of firmware for a hardware plant sensor built as part of the integrated monitoring system for plant disease monitor and forecasting. All hardware sensors from multiple vendors have to be generic enough and to support: Soil fertility detection, Soil moisture detection, Light intensity detection, Ambient air temperature, Ambient air humidity, Low power working mode, Ultra Low power sleep, Long life battery cycle support. The plant sensor senses these quantities at a programmable period and sends the sensors’ readings as JSON data to the Botanica Cloud IoT Server.
-
-### Current releases of botanica firmware for hardware sensors;
-* [LILIGO Model T-Higrow](https://www.lilygo.cc/en-bg/products/t-higrow)
+At this point you can continue using different tools to build the project. Section 2 and 3 describe the existing alternatives.
 
 
-## Andorid app client
+### 2. Working with Android Studio.
 
-The Botanica application is an independent software module for Android mobile devices, built as part of the integrated monitoring system for plant disease monitor and forecasting. The software product has been developed to facilitate the users of the system by providing them with mobility and the possibility of remote configuration, monitoring of sensor data, and notification. The application will help the gardening process to be realized more effectively, which increases revenue. By collecting various data parameters to the cloud server and enabling remote control through a mobile application, the IoT-based intelligent system has been proven to work reliably. The software is designed and can:
-* be easily installed and updated on the most common mobile devices based on the Android operating system
-* create, edit, or delete a user profile in the Botanica Cloud IoT Server 
-* create, edit, or delete unlimited user profiles of plants with the best conditions for their cultivation
-* add, edit, or delete unlimited wireless hardware sensors from different vendors
-* online monitoring and immediate notification(under development) if the values reported by the sensors do not correspond to the defined profiles of the installation
-* history and graphic charts
+[Android Studio][5] is currently the official Android IDE. Due to this, we recommend it as the IDE to use in your development environment.
 
-### Using a mobile application is one of the best practices for agricultural activity that uses the least amount of time and helps prevent crop damage by not over- or under-irrigating
-the soil. Through an Android app, the farm owner monitors the entire cultivation process online.
+We recommend to use the last version available in the stable channel of Android Studio updates. See what update channel is your Android Studio checking for updates in the menu path 'Help'/'Check for Update...'/link 'Updates' in the dialog.
 
-## Roadmap
+To set up the project in Android Studio follow the next steps:
 
-- [x] Mobile Android Client
-- [ ] Cross-platform Mobile Client
-    - [ ] IOS/Web  
-- [ ] Support on different device models (custom devices)
-- [ ] Integrate AI module in the server-side
-- [ ] Multi-language Support 
+* Open Android Studio and select 'Import Project (Eclipse ADT, Gradle, etc)'. Browse through your file system to the folder 'android' where the project is located. Android Studio will then create the '.iml' files it needs. If you ever close the project but the files are still there, you just select 'Open Project...'. The file chooser will show an Android face as the folder icon, which you can select to reopen the project.
+* Android Studio will try to build the project directly after importing it. To build it manually, follow the menu path 'Build'/'Make Project', or just click the 'Play' button in the tool bar to build and run it in a mobile device or an emulator. The resulting APK file will be saved in the 'build/outputs/apk/' subdirectory in the project folder.
 
 
-## License
+### 3. Working in a terminal with Gradle:
 
- Botanica Wellness is distributed under the GNU General Public License GPLv3 or higher, see [LICENSE](https://www.gnu.org/licenses/gpl-3.0.en.html) for details.
+[Gradle][6] is the build system used by Android Studio to manage the building operations on Android apps. You do not need to install Gradle in your system, and Google recommends not to do it, but instead trusting on the [Gradle wrapper][7] included in the project.
 
----
+* Open a terminal and go to the 'android' directory that contains the repository.
+* Run the 'clean' and 'build' tasks using the Gradle wrapper provided
+    - Windows: ```gradlew.bat clean build```
+    - Mac OS/Linux: ```./gradlew clean build```
+	
+The first time the Gradle wrapper is called, the correct Gradle version will be downloaded automatically. An Internet connection is needed for it works.
+	
+The generated APK file is saved in android/build/outputs/apk as android-debug.apk
 
-> GitHub [@ivan-iliev](https://github.com/ivan-iliev) &nbsp;&middot;&nbsp;
 
-
+[1]: https://git-scm.com/
+[2]: https://git-scm.com/downloads
+[3]: https://developer.android.com/sdk/index.html
+[4]: https://developer.android.com/sdk/installing/index.html
+[5]: https://developer.android.com/studio
+[6]: https://gradle.org/
+[7]: https://docs.gradle.org/current/userguide/gradle_wrapper.html
