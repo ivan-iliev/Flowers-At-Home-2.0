@@ -40,7 +40,7 @@ The Internet of Things (IoT) has recently been considered the state-of-the-art i
 
 ## Download
 
-You can [download](https://github.com/amitmerchant1990/electron-markdownify/releases/tag/v1.2.0) the latest installable version of Botanica-Wellnes for Android.
+You can [download](https://www.botanica-wellness.com/botanica-iot.apk) the latest installable version of Botanica-Wellnes for Android.
 
 Or set up the project on your [own](https://github.com/ivan-iliev/Flowers-At-Home-2.0/blob/main/botanica-mobile-android-client/ANDROID%20CLIENT%20GUIDE.md)
 
