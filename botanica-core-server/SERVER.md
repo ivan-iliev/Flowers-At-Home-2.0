@@ -76,7 +76,6 @@ None know at the moment.
 License
 ---------
 
-**FIX ME:**
 Botanica Wellness Server is distributed under the GNU General Public License GPLv3 or
 higher, see [LICENSE](LICENSE) for details.
 
