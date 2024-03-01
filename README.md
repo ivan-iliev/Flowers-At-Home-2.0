@@ -80,10 +80,10 @@ the soil. Through an Android app, the farm owner monitors the entire cultivation
 
 ## License
 
-MIT
+ Botanica Wellness is distributed under the GNU General Public License GPLv3 or higher, see [LICENSE](https://www.gnu.org/licenses/gpl-3.0.en.html) for details.
 
 ---
 
-> GitHub [@amitmerchant1990](https://github.com/ivan-iliev) &nbsp;&middot;&nbsp;
+> GitHub [@ivan-iliev](https://github.com/ivan-iliev) &nbsp;&middot;&nbsp;
 
 
