@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
+        <title>Botanica Wellnes</title>
+		<link href="css/default_theme.css" rel="stylesheet"/>
+		<link href="css/common.css" rel="stylesheet"/>
+        <link href="libs/fontawesome-free-6.5.1-web 2/css/fontawesome.css" rel="stylesheet">
+        <link href="libs/fontawesome-free-6.5.1-web 2/css/brands.css" rel="stylesheet">
+        <link href="libs/fontawesome-free-6.5.1-web 2/css/solid.css" rel="stylesheet">
+        <!-- Google Fonts Roboto -->
+        <!-- MDB -->
+        <link rel="stylesheet" href="css/mdb.min.css" />
+        <link rel="stylesheet" href="css/style.css" />
+
+		<script src="libs/apexcharts.js/apexcharts.min.js"></script>
+
+
+    </head>
+    <body class="bck default_theme">
+		<section id="errorDiv" class="h-100 gone">
+			<div class="error_container">
+                <div class="row justify-content-sm-center">
+                    <div class="card shadow-lg" style="background-color: rgba(29, 29, 29, 0); border-radius: 1rem;">
+                        <div class="card-body p-5" style="background-color: rgb(29, 29, 29, 0.40); border-radius: 1rem;">
+                            <h1 class="fs-4 card-title fw-bold mb-4" style="color: white; text-align: center;">ВЪЗНИКНА ПРОБЛЕМ В ПРИЛОЖЕНИЕТО, МОЛЯ ПРОВЕРЕТЕ ИНТЕРНЕТ ВРЪЗКАТА ВИ!</h1>
+
+                            <div class="d-grid gap 2">
+                                <div id="errorMsg" class="btn btn-success btn-rounded" data-mdb-ripple-init>Опитайте отново</div>
+							</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+		</section>
+        <section id="startDiv" class="h-100 gone">
+            <div class="container h-100">
+            <div class="row justify-content-sm-center h-100">
+
+                    <div class="text-center my-5">
+                    </div>
+                    <div class="card shadow-lg" style="background-color: rgba(29, 29, 29, 0); border-radius: 1rem;">
+                        <div class="p-5" style="background-color: rgb(29, 29, 29, 0.40); border-radius: 1rem;">
+                            <h1 class="fs-4 card-title fw-bold mb-4" style="color: white;">Умният начин да се грижите за вашите растенията</h1>
+                            <div style=" display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; ">
+                                    <button id = "logInButton" type="button" class="btn btn-success btn-rounded" data-mdb-ripple-init>Влизане</button>
+                                    <button id = "signUpButton" type="button" class="btn btn-success btn-rounded" data-mdb-ripple-init>Регистриране</button>
+                            </div>
+                            <br>
+                            <div class="mb-0 text-center" style="color: white;">
+                                <a id="privacy-href" class="text-white-50 fw-bold">Политика за поверителност</a>
+                            </div>
+                        </div>
+                    </div>
+
+            </div>
+        </div>
+        </section>
+        <section id="logInDiv" class="h-100 gone">
+            <div class="container h-100">
+                <div class="row justify-content-sm-center h-100">
+                    <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
+                        <div class="text-center my-5">
+
+                        </div>
+                        <div class="card shadow-lg" style="background-color: #1d1d1d66; border-radius: 1rem;">
+                            <div class="card-body p-5" style="background-color: rgb(29, 29, 29, 0.40); border-radius: 1rem;">
+                                <h1 class="fs-4 card-title fw-bold mb-4" style="color: white;">ВЛИЗАНЕ</h1>
+                                <form class="needs-validation" novalidate="" autocomplete="off">
+                                    <div class="mb-3">
+                                        <label class="mb-2" for="email" style="color: white;">E-Mail адрес</label>
+                                        <input id="email" type="email" class="form-control rounded-pill" name="email" value="" autocomplete="email" required autofocus style="background-color:rgb(36, 36, 42); border-color: rgb(36, 36, 42);" placeholder="пример@пример.com">
+                                        <div class="invalid-feedback">
+                                            Email is invalid
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="mb-2 w-100">
+                                            <label for="password" style="color: white;">Парола</label>
+                                        </div>
+                                        <input id="password" type="password" class="form-control rounded-pill" name="password" required  style="background-color:rgb(36, 36, 42); border-color: rgb(36, 36, 42);" placeholder="Парола">
+                                        <div class="invalid-feedback">
+                                            Password is required
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="button" id="loginBtn" class="btn btn-success btn-rounded" data-mdb-ripple-init>Влизане</button>
+                                    </div>
+                                    <br>
+                                    <div class="mb-0 text-center" style="color: white;">
+                                        Нямате акаунт? -  <a id = "sign-up-href" class="text-white-50 fw-bold">Създайте си</a>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="signUpDiv" class="h-100 gone">
+            <div class="container h-100">
+                <div class="row justify-content-sm-center h-100">
+                    <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
+                        <div class="text-center my-5">
+                        </div>
+                        <div class="card shadow-lg" style="background-color: rgb(29, 29, 29, 0.40); border-radius: 1rem;">
+                            <div class="card-body p-5" style="background-color: rgb(29, 29, 29, 0.40); border-radius: 1rem;">
+                                <h1 class="fs-4 card-title fw-bold mb-4" style="color: white;">РЕГИСТРАЦИЯ</h1>
+                                <form method="POST" class="needs-validation form-inline" novalidate="" autocomplete="off">
+                                    <div class="mb-3">
+                                        <label class="mb-2" for="name" style="color: white;">Име и фамилия</label>
+                                        <input id="name" type="text" class="form-control rounded-pill" name="name" value="" required autofocus style="background-color:rgb(36, 36, 42); border-color: rgb(36, 36, 42);" placeholder="Въведете име и фамилия">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="mb-2" for="email" style="color: white;">E-Mail (Потребителско име)</label>
+                                        <input id="email-signup" type="email" class="form-control rounded-pill" name="email" value="" required autofocus style="background-color:rgb(36, 36, 42); border-color: rgb(36, 36, 42);" placeholder="Въведете имейл">
+                                        <div class="invalid-feedback">
+                                            Email is invalid
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="mb-2 w-100">
+                                            <label for="password-signup" style="color: white;">Въведете парола</label>
+                                        </div>
+                                        <input id="password-signup" type="password" class="form-control rounded-pill" name="password" required  style="background-color:rgb(36, 36, 42); border-color: rgb(36, 36, 42);" placeholder="Въведете парола">
+                                        <div class="invalid-feedback">
+                                            Password is required
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="mb-2 w-100">
+                                            <label for="password-repeat" style="color: white;">Повторете Парола</label>
+                                        </div>
+                                        <input id="password-repeat" type="password" class="form-control rounded-pill" name="password-repeat" style="background-color:rgb(36, 36, 42); border-color: rgb(36, 36, 42);" placeholder="Повторете парола">
+                                    </div>
+
+
+                                    <div class="d-grid gap-2">
+                                        <button id="signup-btn" class="btn btn-success btn-rounded" data-mdb-ripple-init type="submit">регистрация</button>
+                                    </div>
+
+                                </form>
+                            </div>
+
+                            <div class="card-footer py-3 border-0">
+                                <div class="mb-0 text-center" style="color: white;">
+                                    Вече имате акаунт? -  <a id="log-in-href" class="text-white-50 fw-bold">Влезте</a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="privacyDiv" class="h-100 gone">
+            <div class="container h-100">
+                <div class="row justify-content-sm-center h-100">
+
+                    <div class="text-center my-5">
+                    </div>
+                    <div class="card shadow-lg" style="background-color: rgb(29, 29, 29, 0); border-radius: 1rem;">
+                        <div class="card-body" style="background-color: rgba(29, 29, 29, 0.443); border-radius: 1rem;">
+                            <h1 class="fs-4 card-title fw-bold mb-4" style="color: white;">ПОЛИТИКА ЗА ПОВЕРИТЕЛНОСТ
+                                ЗА ИЗПОЛЗВАНЕТО НА МОБИЛНОТО ПРИЛОЖЕНИЕ BOTANICA WELLNESS
+                            </h1>
+
+                            <p style="color: white;">Когато се регистрира за използване на приложението BOTANICA WELLNESS, лицето се съгласява с тази Политика за поверителност:</p>
+                            <h3 style="color: white;">Лични данни</h3>
+                            <p style="color: white;">Това приложение може да проследява потребителите, като съхранява уникален идентификатор на тяхното устройство, за целите на анализа или за съхраняване на предпочитанията и настройките на потребителите. Сред видовете лични данни, които това приложение събира, самостоятелно или чрез трети страни, са: потребителско име (имейл) и парола. Личните данни могат да бъдат предоставени свободно от Потребителя или да бъдат събрани автоматично при използване на това Приложение. Всяко използване на бисквитки - или на други инструменти за проследяване - от това Приложение, освен ако не е посочено друго, служи за идентифициране на Потребителите и запомняне на техните предпочитания и настойки, с единствената цел да предостави услугата, изисквана от потребителя. Непредоставянето на определени Лични данни може да направи невъзможно това Приложение да предоставя услугите си. Потребителят поема отговорност за Личните данни, публикувани или споделени чрез това Приложение на трети страни и декларира, че има правото да ги съобщава или излъчва, като по този начин освобождава Администратора на данни от всякаква отговорност.</p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Методи за обработка на данните</h3>
+                            <p style="color: white;">Данните на Потребителите се обработват по подходящ начин и са предприети подходящи мерки за сигурност, за да се предотврати неоторизиран достъп, разкриване, модифициране или неоторизирано унищожаване на Данните. Обработката на данни се извършва с помощта на компютри и/или ИТ инструменти, следвайки организационни процедури и режими, строго свързани с посочените цели. В някои случаи данните могат да бъдат достъпни за определени лица, отговорни за системната администрация или външни страни (като трети доставчици на технически услуги, пощенски оператори, хостинг доставчици, ИТ компании, комуникационни агенции).</p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Сигурност на вашите лични данни</h3>
+                            <p style="color: white;">Сигурността на Вашите лични данни е важна за Нас, но не забравяйте, че никой метод за предаване през интернет или метод за електронно съхранение не е 100% сигурен. Въпреки че се стремим да използваме търговски приемливи средства за защита на Вашите лични данни, не можем да гарантираме тяхната абсолютна сигурност.
+                                Място на обработка на Данните
+                                Данните се обработват на всички места, където се намират страните, участващи в обработката.
+                            </p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Време за съхранение на Данните</h3>
+                            <p style="color: white;">Данните се съхраняват за времето, необходимо за предоставяне на услугата, поискана от Потребителя.</p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Използването на събраните данни</h3>
+                            <p style="color: white;">Данните относно Потребителя се събират, за да позволят на Приложението да предоставя своите услуги, както и за следните цели: Регистрация и удостоверяване. </p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Подробна информация за обработката на Лични данни</h3>
+                            <p style="color: white;">Личните данни се събират за следните цели и с помощта на следните услуги: Чрез регистрация или удостоверяване Потребителите позволяват на това Приложение да ги идентифицира и да им даде достъп до предлаганите услуги. Трети страни могат да предоставят услуги за регистрация и удостоверяване. В този случай това приложение ще има достъп до някои данни, съхранявани от тези услуги на трети страни, за целите на регистрация или идентификация. Потребителят се регистрира, като попълни изискваните полета и предостави Личните данни директно в това Приложение.</p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Уникална идентификация на устройството</h3>
+                            <p style="color: white;">Това приложение може да проследява потребителите, като съхранява уникален идентификатор на тяхното устройство, за целите на анализа или за съхраняване на предпочитанията и настройките на потребителите.</p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Методи за обработка на данните</h3>
+                            <p style="color: white;">Данните относно Потребителя се събират, за да позволят на Приложението да предоставя своите услуги, както и за следните цели: Регистрация и удостоверяване. </p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Системни регистрационни файлове и поддръжка</h3>
+                            <p style="color: white;">За целите на експлоатацията и поддръжката това Приложение и всякакви услуги на трети страни могат да се събират файлове, които записват взаимодействията с това Приложение (системни регистрационни файлове) или да използват за тази цел други лични данни (като IP адрес).</p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Правни действия</h3>
+                            <p style="color: white;">Личните данни на Потребителя могат да бъдат използвани за правни цели от Администратора на данни, в съда или на етапите, водещи до възможни правни действия, произтичащи от неправилно използване на това Приложение или свързаните услуги. Потребителят е запознат с факта, че Администраторът може да бъде задължен да разкрие лични данни при поискване от публични органи.</p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Връзки към други уебсайтове</h3>
+                            <p style="color: white;">Предоставяните услуги, чрез това Приложение може да съдържат връзки към други уебсайтове, които не се управляват от нас. Ако щракнете върху връзка на трета страна, ще бъдете насочени към сайта на тази трета страна. Горещо Ви съветваме да прегледате Политиката за поверителност на всеки сайт, който посещавате.
+                                Ние нямаме контрол и не поемаме отговорност за съдържанието, политиките за поверителност или практиките на сайтове или услуги на трети страни.
+                            </p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Промени в тази Политика за поверителност</h3>
+                            <p style="color: white;">Може да актуализираме нашата Политика за поверителност от време на време. Ще Ви уведомим за всички промени, като публикуваме новата Политика за поверителност на тази страница.Ще Ви уведомим чрез имейл и/или ясно известие в нашата услуга, преди промяната да влезе в сила и да актуализираме датата „Последна актуализация“ в горната част на тази Политика за поверителност.Съветваме ви периодично да преглеждате тази Политика за поверителност за всякакви промени. Промените в тази Политика за поверителност влизат в сила, когато бъдат публикувани на тази страница.</p>
+                            <br>
+                            <br>
+                            <h3 style="color: white;">Свържете се с нас</h3>
+                            <p style="color: white;">Ако имате въпроси относно тази Политика за поверителност, можете да се свържете с нас: <b>support@botanica-wellness.com</b></p>                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="homeDiv" class="h-100 gradient gone">
+			<div id="header_home" class="">
+				<div class="user">
+					<img class="img"/>
+					<div class="name"></div>
+				</div>
+				<div class="buttons">
+					<i class="add"></i>
+					<i class="refresh"></i>
+				</div>
+			</div>
+			<div>
+                <div id="tab_names">
+					<div class="tab_name">
+						<div id="devicesTab">Устройства</div>
+						<div id="presetsTab">Растения</div>
+					</div>
+			    </div>
+				<div class="tab_content">
+					<div id="devices"></div>
+					<div id="presets"></div>
+				</div>
+			</div>
+        </section>
+        <section  id="addDeviceDiv" class="h-100 gradient gone">
+           <div class="container h-100">
+            <div class="row justify-content-sm-center h-100">
+                <div class="card shadow-lg" style="background-color: rgb(29, 29, 29, 0); border-radius: 1rem; padding: 2rem;">
+                    <div class="card-body" style="background-color: rgba(29, 29, 29, 0.443); border-radius: 1rem;">
+                        <h1 class="fs-4 card-title fw-bold mb-4" style="color: white;">Как да добавим ново устройство към акаунта ни?
+                        </h1>
+
+
+                        <ul class="fa-ul">
+                            <li><span class="fa-li" style="font-size: 2rem; color: white;"><i class="fa-solid fa-wifi fa-l"></i></span><p style="color: white;"> Заредете устройството и се свържете с него на: (MAC адрес) - Botanica Wellness.</p></li>
+                            <li><span class="fa-li" style="font-size: 2rem; color: white;"><i class="fa-solid fa-mobile-screen fa-l"></i></span><p style="color: white;"> Попълнете информацията на Уеб портала, който ще се отвори автоматично.</p></li>
+                            <li><span class="fa-li" style="font-size: 2rem; color: white;"><i class="fa-solid fa-arrows-rotate"></i></span><p style="color: white;"> Устройството ще се рестартира. Влезте отново в приложението и натиснете "refresh"</p></li>
+                            <li><span class="fa-li" style="font-size: 2rem; color: white;"><i class="fa-solid fa-check"></i></span><p style="color: white;"> И готово! Вече може да проследявата състоянието на вашите растения по умен и модерен начин.</p></li>
+
+                        </ul>
+
+                                               
+                        <button id="backHowToBtn" type="button" class="btn btn-success btn-rounded" data-mdb-ripple-init>Назад</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </section>
+		<section id="deviceDiv" class="h-100 gradient gone">
+			<img class="img"/>
+			<div class="name"></div>
+			<div class="interval"></div>
+			<div class="applied_interval"></div>
+			<div class="preset"><span></span><img class="img"/><span class="name"></span></div>
+			<div id="charts">
+				<div>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+				</div>
+			</div>
+		</section>
+		<div id="userMenu" class="popup_base gone">
+			<div>
+				<div>
+					<div></div>
+					<div class="close_btn"><div></div></div>
+				</div>
+				<div>
+					<div>
+						<div class="user_menu_item"><span class="fa-solid fa-user-pen fa-xl"></span><span class="user_menu_item_text"></span></div>
+                        <div class="user_menu_item"><span class="fa-solid fa-right-from-bracket fa-xl"></span><span class="user_menu_item_text"></span></div>
+						<div class="user_menu_item"><span class="fa-solid fa-user-xmark fa-xl"></span><span class="user_menu_item_text"></span></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="userEdit" class="popup_base gone">
+			<div>
+				<div>
+					<div></div>
+					<div class="close_btn"><div></div></div>
+				</div>
+				<div>
+					<div class="container">
+                        <img class="img"/>
+						<div class="user"></div>
+						<label><div></div><input type="text" class="form-control rounded-pill" placeholder="Име" autocomplete="name"/></label>
+						<label><div></div><input type="number" class="form-control rounded-pill" placeholder="20"/></label>
+						<label><div></div><input type="password" class="form-control rounded-pill" placeholder="Нова Парола" autocomplete="new-password"/></label>
+						<label><div></div><input type="password" class="form-control rounded-pill" placeholder="Повтори нова парола" autocomplete="new-password"/></label>
+						<label class="btn btn-success btn-sm btn-rounded input_file"><i class="fa-solid fa-file-arrow-up"></i><div></div><input type="file" accept=".png, .jpeg, .svg, .webp, .jpg, .bmp, .gif, .avif, .tiff, .tif"/></label>
+						<label><span></span><input type="checkbox"/></label>
+					</div>
+				</div>
+				<div>
+					<div class="btn btn-success btn-rounded msg_box_btn"></div>
+					<div class="btn btn-danger btn-rounded msg_box_btn"></div>
+				</div>
+			</div>
+		</div>
+		<div id="presetPopup" class="popup_base gone">
+			<div>
+				<div>
+					<div></div>
+					<div class="close_btn"><div></div></div>
+				</div>
+				<div>
+					<div class="container">
+						<img class="img"/>
+						<label><div class="preset_name"></div><input type="text" class="form-control rounded-pill" placeholder="Име" autocomplete="name"/></label>
+						<label class="label_checkbox"><span></span><input type="checkbox"/></label>
+						<div class="limits">
+                            <div></div>
+							<div class="min">
+								<label><i class="fa-solid fa-temperature-half fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="°C"/></label>
+								<label><i class="fa-solid fa-wind fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="%"/></label>
+								<label><i class="fa-solid fa-sun fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="lux"/></label>
+								<label><i class="fa-solid fa-seedling fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="%"/></label>
+								<label><i class="fa-solid fa-droplet fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="%"/></label>
+							</div>
+                            <div></div>
+							<div class="max">
+								<label><i class="fa-solid fa-temperature-half fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="°C"/></label>
+								<label><i class="fa-solid fa-wind fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="%"/></label>
+								<label><i class="fa-solid fa-sun fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="lux"/></label>
+								<label><i class="fa-solid fa-seedling fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="%"/></label>
+								<label><i class="fa-solid fa-droplet fa-xl"></i><div></div><input type="number" class="form-control rounded-pill" placeholder="%"/></label>
+							</div>
+						</div>
+						<label class="btn btn-success btn-sm btn-rounded input_file"><i class="fa-solid fa-file-arrow-up"></i><div></div><input type="file" accept=".png, .jpeg, .svg, .webp, .jpg, .bmp, .gif, .avif, .tiff, .tif"/></label>
+						<label class="label_checkbox"><span></span><input type="checkbox"/></label>
+					</div>
+				</div>
+				<div>
+					<div class="btn btn-success btn-rounded msg_box_btn"></div>
+					<div class="btn btn-danger btn-rounded msg_box_btn"></div>
+				</div>
+			</div>
+		</div>
+		<div id="devicePopup" class="popup_base gone">
+			<div>
+				<div>
+					<div></div>
+					<div class="close_btn"><div></div></div>
+				</div>
+				<div>
+					<div class="container">
+						<img class="device_image"/>
+						<div></div>
+						<label class="custom-control-label"><span class="custom-control custom-checkbox"></span><input type="checkbox" class="custom-control-input"/></label>
+                        <label class="preset"><span></span><img/><span id="preset_name"></span></label>
+						<label><div></div><input type="text" class="form-control rounded-pill"  placeholder="Име" autocomplete="name"/></label>
+						<label><div></div><input class="form-control rounded-pill"  type="number"/></label>
+						<label class="btn btn-success btn-sm btn-rounded input_file"><i class="fa-solid fa-file-arrow-up"></i><div></div><input type="file" accept=".png, .jpeg, .svg, .webp, .jpg, .bmp, .gif, .avif, .tiff, .tif"/></label>
+						<label><span></span><input type="checkbox"/></label>
+					</div>
+				</div>
+				<div>
+					<div class="btn btn-success btn-rounded msg_box_btn"></div>
+					<div class="btn btn-danger btn-rounded msg_box_btn"></div>
+				</div>
+			</div>
+		</div>
+		<div id="presetChoice" class="popup_base gone">
+			<div>
+				<div>
+					<div></div>
+					<div class="close_btn"><div></div></div>
+				</div>
+				<div class="container"><div></div></div>
+			</div>
+		</div>
+
+
+		<script src="js/core.js"></script>
+		<script src="js/input.js"></script>
+		<script src="js/msg_box.js"></script>
+		<script src="js/user.js"></script>
+		<script src="js/presets.js"></script>
+		<script src="js/devices.js"></script>
+
+		<script src="js/error_screen.js"></script>
+		<script src="js/start_screen.js"></script>
+		<script src="js/login_screen.js"></script>
+        <script src="js/signup_screen.js"></script>
+        <script src="js/privacy_screen.js"></script>
+        <script src="js/how_to_add_dev.js"></script>
+		<script src="js/home_screen.js"></script>
+		<script src="js/device_screen.js"></script>
+
+		<script>core.init();</script>
+    </body>
+</html>

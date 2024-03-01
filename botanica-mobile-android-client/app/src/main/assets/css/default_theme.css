@@ -1,0 +1,13 @@
+body.default_theme {
+	--popup_text_color: #a8a8a8;
+	--header_line: #259632;
+	--header_color: #259632;
+	--footer_line: #259632;
+	--border_color: #259632;
+	--popup_bg_from: #101010;
+	--popup_bg_to: #071f00cc;
+
+	--msg_box_text_color: #a8a8a8;
+	--msg_box_bg_from: #101010;
+	--msg_box_bg_to: #071f00cc;
+}
