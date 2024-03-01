@@ -46,7 +46,6 @@ CREATE TABLE admins(
 	email TEXT NOT NULL UNIQUE, 
 	picture TEXT
 );
-INSERT INTO admins (admin, name, pass, picture, email) VALUES (true, 'admin', crypt('admin', gen_salt('bf')), '', '???@???.??');
 
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users(
@@ -61,7 +60,6 @@ CREATE TABLE users(
 	picture TEXT, 
 	battery REAL NOT NULL DEFAULT 20
 );
-INSERT INTO users (name, pass, email) VALUES ('test', crypt('test', gen_salt('bf')), 'test@test.bg');
 
 DROP TABLE IF EXISTS models CASCADE;
 CREATE TABLE models(
