@@ -3,7 +3,6 @@ $hostRW= 'mstorage15-1.office.lab';
 $portRW= 5432;
 $dbName= 'botanica';
 $dbUser= 'botanica';
-$dbPass= '2WoLLR4isoUg8eG';
 $maxPassLength= 72;
 
 $linkRW= null;
