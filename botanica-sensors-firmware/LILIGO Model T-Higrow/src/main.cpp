@@ -554,7 +554,7 @@ if(initWiFi()) {
   print_wakeup_reason();
 
 
-  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * 1000000ULL);
   state = digitalRead(USER_BUTTON);
 
   //esp_sleep_enable_ext0_wakeup(GPIO_NUM_35,0);
